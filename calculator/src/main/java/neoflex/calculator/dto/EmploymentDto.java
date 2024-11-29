@@ -1,15 +1,17 @@
-package dto;
+package neoflex.calculator.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
 import lombok.Data;
+import neoflex.calculator.dto.enumDto.EmploymentStatus;
+import neoflex.calculator.dto.enumDto.Position;
 
 import java.math.BigDecimal;
 
 @Data
 @Builder
-@Schema(description = "Трудоустройство")
-public class EmploymentDTO {
+@Schema(description = "Данные о трудовой занятости")
+public class EmploymentDto {
 
     @Schema(description = "Рабочий статус", example = "SELF_EMPLOYED")
     private final EmploymentStatus employmentStatus;

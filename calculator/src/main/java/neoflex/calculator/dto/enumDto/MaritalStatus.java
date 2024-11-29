@@ -1,4 +1,4 @@
-package dto;
+package neoflex.calculator.dto.enumDto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 

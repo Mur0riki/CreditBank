@@ -1,4 +1,4 @@
-package dto;
+package neoflex.calculator.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
@@ -7,8 +7,8 @@ import java.math.BigDecimal;
 import java.util.List;
 
 @Data
-@Schema(description = "Кредит")
-public class CreditDTO {
+@Schema(description = "Сущность кредита")
+public class CreditDto {
 
     @Schema(description = "Сумма", example = "1000000")
     private final BigDecimal amount;

@@ -1,8 +1,10 @@
-package dto;
+package neoflex.calculator.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.*;
 import lombok.Data;
+import neoflex.calculator.dto.enumDto.Gender;
+import neoflex.calculator.dto.enumDto.MaritalStatus;
 
 
 import java.math.BigDecimal;
@@ -10,7 +12,7 @@ import java.time.LocalDate;
 
 @Data
 @Schema(description = "Данные для оценки")
-public class ScoringDataDTO {
+public class ScoringDataDto {
 
     @NotNull
     @DecimalMin(value = "10000", message = "Amount cannot be less than 10000")
@@ -72,7 +74,7 @@ public class ScoringDataDTO {
 
     @NotNull
     @Schema(description = "Трудоустройство")
-    private final EmploymentDTO employment;
+    private final EmploymentDto employment;
 
     @NotNull
     @Schema(description = "Учетная запись")

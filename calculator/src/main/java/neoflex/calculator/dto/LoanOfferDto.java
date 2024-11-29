@@ -1,4 +1,4 @@
-package dto;
+package neoflex.calculator.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
@@ -10,7 +10,7 @@ import java.math.BigDecimal;
 @Data
 @Builder
 @Schema(description = "Кредитное предложение")
-public class LoanOfferDTO {
+public class LoanOfferDto {
 
     @Schema(description = "Номер кредитного предложения", example = "1")
     private final Long statementId;

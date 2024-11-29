@@ -1,4 +1,4 @@
-package dto;
+package neoflex.calculator.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.*;
@@ -9,7 +9,7 @@ import java.time.LocalDate;
 
 @Data
 @Schema(description = "Заявка на получение кредита", name = "Заявка")
-public class LoanStatementRequestDTO {
+public class LoanStatementRequestDto {
 
     @NotNull
     @DecimalMin(value = "10000", message = "Amount cannot be less than 10000")
