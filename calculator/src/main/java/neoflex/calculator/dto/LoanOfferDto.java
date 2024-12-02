@@ -5,6 +5,7 @@ import lombok.Builder;
 import lombok.Data;
 
 import java.math.BigDecimal;
+import java.util.UUID;
 
 
 @Data
@@ -12,8 +13,8 @@ import java.math.BigDecimal;
 @Schema(description = "Кредитное предложение")
 public class LoanOfferDto {
 
-    @Schema(description = "Номер кредитного предложения", example = "1")
-    private final Long statementId;
+    @Schema(description = "ID кредитного предложения", example = "3422b448-2460-4fd2-9183-8000de6f8343")
+    private final UUID statementId;
 
     @Schema(description = "Запрашиваемая сумма", example = "1000000")
     private final BigDecimal requestedAmount;

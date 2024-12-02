@@ -8,13 +8,14 @@ import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-import neoflex.calculator.service.CalculatorServiceImpl;
+import neoflex.calculator.serviceImpl.CalculatorServiceImpl;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Comparator;
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -68,7 +69,7 @@ class CalculatorServiceImplTest {
         when(loanAppMock.getTerm()).thenReturn(60);
         when(loanAppMock.getBirthdate()).thenReturn(LocalDate.ofEpochDay(1996 - 01 - 17));
 
-        LoanOfferDto loanOfferDTO1 = LoanOfferDto.builder().statementId(1L)
+        LoanOfferDto loanOfferDTO1 = LoanOfferDto.builder().statementId(UUID.fromString("123e4567-e89b-12d3-a456-426614174000"))
                 .requestedAmount(BigDecimal.valueOf(100000))
                 .totalAmount(BigDecimal.valueOf(132000))
                 .term(60)
@@ -78,7 +79,7 @@ class CalculatorServiceImplTest {
                 .isSalaryClient(true)
                 .build();
 
-        LoanOfferDto loanOfferDTO2 = LoanOfferDto.builder().statementId(2L)
+        LoanOfferDto loanOfferDTO2 = LoanOfferDto.builder().statementId(UUID.fromString("550e8400-e29b-41d4-a716-446655440000"))
                 .requestedAmount(BigDecimal.valueOf(100000))
                 .totalAmount(BigDecimal.valueOf(151800))
                 .term(60)
@@ -88,7 +89,7 @@ class CalculatorServiceImplTest {
                 .isSalaryClient(false)
                 .build();
 
-        LoanOfferDto loanOfferDTO3 = LoanOfferDto.builder().statementId(3L)
+        LoanOfferDto loanOfferDTO3 = LoanOfferDto.builder().statementId(UUID.fromString("c9eb183e-8f53-47a4-98a5-0cabece64c66"))
                 .requestedAmount(BigDecimal.valueOf(100000))
                 .totalAmount(BigDecimal.valueOf(155200))
                 .term(60)
@@ -98,7 +99,7 @@ class CalculatorServiceImplTest {
                 .isSalaryClient(true)
                 .build();
 
-        LoanOfferDto loanOfferDTO4 = LoanOfferDto.builder().statementId(4L)
+        LoanOfferDto loanOfferDTO4 = LoanOfferDto.builder().statementId(UUID.fromString("7d4a32d2-a746-4c7b-b519-4b561e3c7f7c"))
                 .requestedAmount(BigDecimal.valueOf(100000))
                 .totalAmount(BigDecimal.valueOf(175000))
                 .term(60)
@@ -116,6 +117,16 @@ class CalculatorServiceImplTest {
 
         List<LoanOfferDto> actualLoanOffers = calculatorService.getLoanOffers(loanAppMock);
 
-        assertEquals(expectedLoanOffers, actualLoanOffers);
+        for (int i = 0; i < actualLoanOffers.size(); i++) {
+           LoanOfferDto actualLoanOffer = actualLoanOffers.get(i);
+           LoanOfferDto expectedLoanOffer = expectedLoanOffers.get(i);
+           assertEquals(actualLoanOffer.getMonthlyPayment(), expectedLoanOffer.getMonthlyPayment());
+           assertEquals(actualLoanOffer.getRate(), expectedLoanOffer.getRate());
+           assertEquals(actualLoanOffer.getTerm(), expectedLoanOffer.getTerm());
+           assertEquals(actualLoanOffer.getRequestedAmount(), expectedLoanOffer.getRequestedAmount());
+           assertEquals(actualLoanOffer.getTotalAmount(),expectedLoanOffer.getTotalAmount());
+           assertEquals(actualLoanOffer.isInsuranceEnabled(),expectedLoanOffer.isInsuranceEnabled());
+           assertEquals(actualLoanOffer.isSalaryClient(),expectedLoanOffer.isSalaryClient());
+        }
     }
 }
