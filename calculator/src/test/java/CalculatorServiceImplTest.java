@@ -3,13 +3,11 @@ import neoflex.calculator.dto.enumDto.EmploymentStatus;
 import neoflex.calculator.dto.enumDto.Gender;
 import neoflex.calculator.dto.enumDto.MaritalStatus;
 import neoflex.calculator.dto.enumDto.Position;
-import org.junit.jupiter.api.BeforeEach;
+import neoflex.calculator.service.serviceImpl.CalculatorServiceImpl;
 import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-import neoflex.calculator.serviceImpl.CalculatorServiceImpl;
-import org.springframework.test.util.ReflectionTestUtils;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -28,11 +26,6 @@ class CalculatorServiceImplTest {
 
     @Mock
     CalculatorServiceImpl calculatorService = new CalculatorServiceImpl();
-
-    @BeforeEach
-    public void setUp() {
-        ReflectionTestUtils.setField(calculatorService, "baseRate", 10);
-    }
 
     @Test
     void calculateCreditConditionsTest() {
@@ -118,15 +111,15 @@ class CalculatorServiceImplTest {
         List<LoanOfferDto> actualLoanOffers = calculatorService.getLoanOffers(loanAppMock);
 
         for (int i = 0; i < actualLoanOffers.size(); i++) {
-           LoanOfferDto actualLoanOffer = actualLoanOffers.get(i);
-           LoanOfferDto expectedLoanOffer = expectedLoanOffers.get(i);
-           assertEquals(actualLoanOffer.getMonthlyPayment(), expectedLoanOffer.getMonthlyPayment());
-           assertEquals(actualLoanOffer.getRate(), expectedLoanOffer.getRate());
-           assertEquals(actualLoanOffer.getTerm(), expectedLoanOffer.getTerm());
-           assertEquals(actualLoanOffer.getRequestedAmount(), expectedLoanOffer.getRequestedAmount());
-           assertEquals(actualLoanOffer.getTotalAmount(),expectedLoanOffer.getTotalAmount());
-           assertEquals(actualLoanOffer.isInsuranceEnabled(),expectedLoanOffer.isInsuranceEnabled());
-           assertEquals(actualLoanOffer.isSalaryClient(),expectedLoanOffer.isSalaryClient());
+            LoanOfferDto actualLoanOffer = actualLoanOffers.get(i);
+            LoanOfferDto expectedLoanOffer = expectedLoanOffers.get(i);
+            assertEquals(actualLoanOffer.getMonthlyPayment(), expectedLoanOffer.getMonthlyPayment());
+            assertEquals(actualLoanOffer.getRate(), expectedLoanOffer.getRate());
+            assertEquals(actualLoanOffer.getTerm(), expectedLoanOffer.getTerm());
+            assertEquals(actualLoanOffer.getRequestedAmount(), expectedLoanOffer.getRequestedAmount());
+            assertEquals(actualLoanOffer.getTotalAmount(), expectedLoanOffer.getTotalAmount());
+            assertEquals(actualLoanOffer.isInsuranceEnabled(), expectedLoanOffer.isInsuranceEnabled());
+            assertEquals(actualLoanOffer.isSalaryClient(), expectedLoanOffer.isSalaryClient());
         }
     }
 }

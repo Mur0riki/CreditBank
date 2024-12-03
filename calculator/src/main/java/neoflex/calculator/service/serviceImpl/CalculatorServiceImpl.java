@@ -1,4 +1,4 @@
-package neoflex.calculator.serviceImpl;
+package neoflex.calculator.service.serviceImpl;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -6,11 +6,9 @@ import neoflex.calculator.dto.*;
 import neoflex.calculator.exceptionhandling.ValidationException;
 import neoflex.calculator.service.CalculatorService;
 import neoflex.calculator.service.RateService;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
-import java.math.BigInteger;
 import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.time.Period;
@@ -27,46 +25,41 @@ import java.util.stream.Stream;
 public class CalculatorServiceImpl implements CalculatorService {
     private static final BigDecimal INSURANCE_RATE = BigDecimal.valueOf(0.02);
     private static final BigDecimal PERCENT = BigDecimal.valueOf(100);
-    private static final BigDecimal BASE_RATE = new BigDecimal(BigInteger.TEN);
     private static final int ADULT = 18;
     private static final int QUANTITY_MONTHS = 12;
     private final RateService rateService = new RateServiceImpl();
-    @Value("${app.baseRate:10}")
-    private static Integer baseRate;
 
     @Override
     public List<LoanOfferDto> getLoanOffers(LoanStatementRequestDto loanStatementRequestDTO) {
-        log.info("START CREATED LOAN OFFER");
+        log.info("Start created loan offers list");
         List<LoanOfferDto> listLoanOfferDTO = Stream.of(
                         getAvailableOfferDTO(UUID.randomUUID(), true, true, loanStatementRequestDTO),
-                        getAvailableOfferDTO(UUID.randomUUID(), true, false, loanStatementRequestDTO),
                         getAvailableOfferDTO(UUID.randomUUID(), false, true, loanStatementRequestDTO),
+                        getAvailableOfferDTO(UUID.randomUUID(), true, false, loanStatementRequestDTO),
                         getAvailableOfferDTO(UUID.randomUUID(), false, false, loanStatementRequestDTO))
                 .sorted(Comparator.comparing(LoanOfferDto::getRate).reversed())
                 .collect(Collectors.toList());
-        log.info("FINISHED CREATED LIST OF LOAN OFFER\n {}", listLoanOfferDTO);
+        log.info("Finished created list of loan offers\n {}", listLoanOfferDTO);
         return listLoanOfferDTO;
     }
 
-    private LoanOfferDto getAvailableOfferDTO(UUID applicationId, boolean isInsuranceEnabled, boolean isSalaryClient, LoanStatementRequestDto loanStatementRequestDTO) {
-        log.info("START CREATED LOAN OFFER");
+    private LoanOfferDto getAvailableOfferDTO(UUID statementId, boolean isInsuranceEnabled, boolean isSalaryClient, LoanStatementRequestDto loanStatementRequestDTO) {
+        log.debug("Start created loan offer");
 
         if (Period.between(loanStatementRequestDTO.getBirthdate(), LocalDate.now()).getYears() < ADULT) {
             throw new ValidationException("Age must be over 18");
         }
-        BigDecimal rate = BASE_RATE;
         BigDecimal requestAmount = loanStatementRequestDTO.getAmount();
         Integer term = loanStatementRequestDTO.getTerm();
-        rate = rateService.calculateRateBySalaryClient(isSalaryClient, rate);
-        rate = rateService.calculateRateByInsurance(isInsuranceEnabled, rate);
+        BigDecimal rate = rateService.prescoringRate(isSalaryClient, isInsuranceEnabled);
         BigDecimal monthlyPercent = rate.divide(BigDecimal.valueOf(QUANTITY_MONTHS), 2, RoundingMode.HALF_EVEN);
         BigDecimal creditCoast = (requestAmount.divide(PERCENT, 2, RoundingMode.HALF_EVEN)).multiply(monthlyPercent).multiply(BigDecimal.valueOf(term));
         BigDecimal totalAmount = calculateTotalAmount(requestAmount, isInsuranceEnabled, creditCoast);
         BigDecimal monthlyPayment = calculateMonthlyPayment(totalAmount, term);
         LoanOfferDto loanOffer = LoanOfferDto.builder().
-                statementId(UUID.randomUUID()).
+                statementId(statementId).
                 requestedAmount(loanStatementRequestDTO.getAmount())
-                .totalAmount(totalAmount.setScale(0))
+                .totalAmount(totalAmount.setScale(0,RoundingMode.HALF_EVEN))
                 .term(term)
                 .monthlyPayment(monthlyPayment)
                 .rate(rate)
@@ -74,7 +67,7 @@ public class CalculatorServiceImpl implements CalculatorService {
                 .isSalaryClient(isSalaryClient)
                 .build();
 
-        log.info("FINISHED CREATED LOAN OFFER");
+        log.debug("Finished created loan offer");
         return loanOffer;
     }
 
@@ -90,20 +83,20 @@ public class CalculatorServiceImpl implements CalculatorService {
 
     @Override
     public CreditDto calculateCreditConditions(ScoringDataDto scoringDataDTO) {
-        log.info("STARTED CALCULATE CREDIT CONDITION\n");
+        log.debug("Started calculate credit condition\n");
         BigDecimal amount = scoringDataDTO.getAmount();
         BigDecimal rate = rateService.scoringRate(scoringDataDTO);
         Integer term = scoringDataDTO.getTerm();
         BigDecimal psk = calculatePSK(scoringDataDTO, rate);
         BigDecimal monthlyPayment = calculateMonthlyPayment(psk, term);
         List<PaymentScheduleElement> paymentScheduleElements = getPaymentSchedule(amount, term, psk, monthlyPayment, rate);
-        log.info("FINISHED CALCULATE CREDIT CONDITION\n");
+        log.debug("Finished calculate credit condition\n");
         return new CreditDto(amount, term, monthlyPayment, rate, psk, scoringDataDTO.getIsInsuranceEnabled(),
                 scoringDataDTO.getIsSalaryClient(), paymentScheduleElements);
     }
 
     private List<PaymentScheduleElement> getPaymentSchedule(BigDecimal amount, Integer term, BigDecimal psk, BigDecimal monthlyPayment, BigDecimal rate) {
-        log.info("STARTED CREATE LIST OF  PAYMENT SCHEDULE ELEMENT");
+        log.debug("Started create list of payment schedule element");
         List<PaymentScheduleElement> listPaymentSchedule = new ArrayList<>();
 
         for (int i = 1; i < term + 1; i++) {
@@ -116,19 +109,19 @@ public class CalculatorServiceImpl implements CalculatorService {
             listPaymentSchedule.add(paymentScheduleElement);
         }
 
-        log.info("FINISHED CREATE LIST OF  PAYMENT SCHEDULE ELEMENT");
+        log.debug("Finished create list of payment schedule element");
         return listPaymentSchedule;
     }
 
     private BigDecimal calculateMonthlyPayment(BigDecimal totalAmount, Integer term) {
-        log.info("STARTED CALCULATE MONTHLY PAYMENT");
+        log.debug("Started calculate monthly payment");
         BigDecimal monthlyPayment = totalAmount.divide(BigDecimal.valueOf(term), 2, RoundingMode.HALF_EVEN);
-        log.info("FINISHED CALCULATE MONTHLY PAYMENT");
+        log.debug("Finished calculate monthly payment");
         return monthlyPayment;
     }
 
     private BigDecimal calculatePSK(ScoringDataDto scoringDataDTO, BigDecimal rate) {
-        log.info("STARTED CALCULATE PSK");
+        log.debug("Started calculate psk");
         BigDecimal monthlyPercent = rate.divide(BigDecimal.valueOf(QUANTITY_MONTHS), 2, RoundingMode.HALF_EVEN);
         BigDecimal requestAmount = scoringDataDTO.getAmount();
         BigDecimal creditCoast = (requestAmount.divide(PERCENT, 2, RoundingMode.HALF_EVEN))
@@ -138,7 +131,7 @@ public class CalculatorServiceImpl implements CalculatorService {
             BigDecimal insuranceCoast = requestAmount.multiply(INSURANCE_RATE);
             psk = psk.add(insuranceCoast);
         }
-        log.info("FINISHED CALCULATE PSK");
+        log.debug("Finished calculate psk");
         return psk;
     }
 }

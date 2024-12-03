@@ -1,4 +1,4 @@
-package neoflex.calculator.serviceImpl;
+package neoflex.calculator.service.serviceImpl;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -9,7 +9,6 @@ import neoflex.calculator.dto.enumDto.MaritalStatus;
 import neoflex.calculator.dto.enumDto.Position;
 import neoflex.calculator.exceptionhandling.ScoringException;
 import neoflex.calculator.service.RateService;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -28,10 +27,10 @@ public class RateServiceImpl implements RateService {
     private static final int MAX_AGE = 60;
     private static final int MIN_CURRENT_WORK_EXPERIENCE = 3;
     private static final int MIN_TOTAL_WORK_EXPERIENCE = 12;
-    private BigDecimal baseRate = new BigDecimal(BigInteger.TEN);
+    private final BigDecimal baseRate = new BigDecimal(BigInteger.TEN);
     @Override
     public BigDecimal scoringRate(ScoringDataDto scoringDataDTO) {
-        log.info("STARTED SCORING RATE");
+        log.debug("Started scoring rate");
         BigDecimal creditRate = baseRate;
         validateScoringData(scoringDataDTO);
         creditRate = calculateRateByInsurance(scoringDataDTO.getIsInsuranceEnabled(), creditRate);
@@ -41,11 +40,28 @@ public class RateServiceImpl implements RateService {
         creditRate = calculateRateByDependent(scoringDataDTO, creditRate);
         creditRate = calculateRateByGender(scoringDataDTO, creditRate);
         creditRate = calculateRateBySalaryClient(scoringDataDTO.getIsSalaryClient(), creditRate);
-        log.info("FINISHED SCORING RATE");
+        log.debug("Finished scoring rate");
         return creditRate;
     }
+    @Override
+    public BigDecimal prescoringRate(boolean isSalaryClient, boolean isInsuranceEnabled){
+        log.debug("Started prescoring rate");
+        BigDecimal rate = baseRate;
+        if (isSalaryClient) {
+            rate = rate.subtract(BigDecimal.valueOf(2));
+        } else {
+            rate = rate.add(BigDecimal.valueOf(2));
+        }
+        if (isInsuranceEnabled) {
+            rate = rate.subtract(BigDecimal.valueOf(2));
+        } else {
+            rate = rate.add(BigDecimal.valueOf(3));
+        }
+        log.debug("Finished prescoring rate");
+        return rate;
+    }
     private void validateScoringData(ScoringDataDto scoringDataDTO) {
-        log.info("STARTED VALIDATE SCORING DATA");
+        log.debug("Started validate scoring data");
         List<String> listExceptionInfo = new ArrayList<>();
         int age = getAge(scoringDataDTO);
         if (scoringDataDTO.getEmployment().getEmploymentStatus() == EmploymentStatus.UNEMPLOYED) {
@@ -64,35 +80,24 @@ public class RateServiceImpl implements RateService {
             listExceptionInfo.add("Total work experience very small");
         }
         if (!listExceptionInfo.isEmpty()) {
-            listExceptionInfo.add(0, "Refusal: ");
-            log.error("FINISHED VALIDATE SCORING DATA UNSUCCESSFULLY");
+            listExceptionInfo.addFirst("Refusal: ");
+            log.error("Finished validate scoring dara unsuccessfully");
             throw new ScoringException(listExceptionInfo.toString());
         } else {
-            log.info("FINISHED VALIDATE SCORING DATA SUCCESSFULLY");
+            log.debug("Finished validate scoring dara successfully");
         }
     }
-    public BigDecimal calculateRateBySalaryClient(boolean isSalaryClient, BigDecimal rate) {
-        log.info("STARTED CALCULATE RATE BY SALARY CLIENT");
-        if (isSalaryClient) {
-            rate = rate.subtract(BigDecimal.valueOf(2));
-        } else {
-            rate = rate.add(BigDecimal.valueOf(2));
-        }
-        log.info("FINISHED CALCULATE RATE BY SALARY CLIENT");
-        return rate;
-    }
-
     private BigDecimal calculateRateByDependent(ScoringDataDto scoringDataDTO, BigDecimal creditRate) {
-        log.info("STARTED CALCULATE RATE BY DEPENDENT");
+        log.debug("Started calculate rate by dependent");
         if (scoringDataDTO.getDependentAmount() > 1) {
             creditRate = creditRate.add(BigDecimal.ONE);
         }
-        log.info("FINISHED CALCULATE RATE BY DEPENDENT");
+        log.debug("Finished calculate rate by dependent");
         return creditRate;
     }
 
     private BigDecimal calculateRateByGender(ScoringDataDto scoringDataDto, BigDecimal creditRate) {
-        log.info("STARTED CALCULATE RATE BY GENDER");
+        log.debug("Started calculate rate by gender");
         int age = getAge(scoringDataDto);
         if (scoringDataDto.getGender() == Gender.FEMALE && age >= 35 && age < 60) {
             creditRate = creditRate.subtract(BigDecimal.valueOf(3));
@@ -103,59 +108,62 @@ public class RateServiceImpl implements RateService {
         if (scoringDataDto.getGender() == Gender.NOT_BINARY) {
             creditRate = creditRate.add(BigDecimal.valueOf(3));
         }
-        log.info("FINISHED CALCULATE RATE BY GENDER");
+        log.debug("Finished calculate rate by gender");
         return creditRate;
     }
 
     private BigDecimal calculateRateByMaritalStatus(ScoringDataDto scoringDataDTO, BigDecimal creditRate) {
-        log.info("STARTED CALCULATE RATE BY MARITAL STATUS");
+        log.debug("Started calculate rate by marital status");
         if (scoringDataDTO.getMaritalStatus() == MaritalStatus.MARRIED) {
             creditRate = creditRate.subtract(BigDecimal.valueOf(3));
         }
         if (scoringDataDTO.getMaritalStatus() == MaritalStatus.DIVORCED) {
             creditRate = creditRate.add(BigDecimal.ONE);
         }
-        log.info("FINISHED CALCULATE RATE BY MARITAL STATUS");
+        log.debug("Finished calculate rate by marital status");
         return creditRate;
     }
 
     private BigDecimal calculateRateByEmploymentPosition(ScoringDataDto scoringDataDTO, BigDecimal creditRate) {
-        log.info("STARTED CALCULATE RATE BY EMPLOYMENT POSITION");
+        log.debug("Started calculate rate by employment position");
         if (scoringDataDTO.getEmployment().getPosition() == Position.MANAGER) {
             creditRate = creditRate.subtract(BigDecimal.valueOf(2));
         }
         if (scoringDataDTO.getEmployment().getPosition() == Position.TOP_MANAGER) {
             creditRate = creditRate.subtract(BigDecimal.valueOf(4));
         }
-        log.info("FINISHED CALCULATE RATE BY EMPLOYMENT POSITION");
+        log.debug("Finished calculate rate by employment position");
         return creditRate;
     }
 
     private BigDecimal calculateRateByEmployeeStatus(ScoringDataDto scoringDataDTO, BigDecimal creditRate) {
-        log.info("STARTED CALCULATE RATE BY EMPLOYEE STATUS");
+        log.debug("Started calculate rate by employee status");
         if (scoringDataDTO.getEmployment().getEmploymentStatus() == EmploymentStatus.SELF_EMPLOYED) {
             creditRate = creditRate.add(BigDecimal.ONE);
         }
         if (scoringDataDTO.getEmployment().getEmploymentStatus() == EmploymentStatus.DIRECTOR) {
             creditRate = creditRate.add(BigDecimal.valueOf(3));
         }
-        log.info("FINISHED CALCULATE RATE BY EMPLOYEE STATUS");
+        log.debug("Finished calculate rate by employee status");
         return creditRate;
     }
-    public BigDecimal calculateRateByInsurance(boolean isInsuranceEnabled, BigDecimal rate) {
-        log.info("STARTED CALCULATE RATE BY INSURANCE");
-        if (isInsuranceEnabled) {
-            rate = rate.subtract(BigDecimal.valueOf(2));
-        } else {
-            rate = rate.add(BigDecimal.valueOf(3));
-        }
-        log.info("FINISHED CALCULATE RATE BY INSURANCE");
-        return rate;
-    }
     private int getAge(ScoringDataDto scoringDataDTO) {
-        log.info("STARTED COUNTING AGE");
-        int years = Period.between(scoringDataDTO.getBirthdate(), LocalDate.now()).getYears();
-        log.info("FINISHED COUNTING AGE");
-        return years;
+        return Period.between(scoringDataDTO.getBirthdate(), LocalDate.now()).getYears();
+    }
+    private BigDecimal calculateRateByInsurance(boolean isInsuranceEnabled, BigDecimal creditRate){
+        if (isInsuranceEnabled) {
+            creditRate = creditRate.subtract(BigDecimal.valueOf(2));
+        } else {
+            creditRate = creditRate.add(BigDecimal.valueOf(3));
+        }
+        return creditRate;
+    }
+    private BigDecimal calculateRateBySalaryClient(boolean isSalaryClient, BigDecimal creditRate){
+        if (isSalaryClient) {
+            creditRate = creditRate.subtract(BigDecimal.valueOf(2));
+        } else {
+            creditRate = creditRate.add(BigDecimal.valueOf(2));
+        }
+        return creditRate;
     }
 }
