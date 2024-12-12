@@ -4,10 +4,13 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 
 @Schema(description = "Рабочий статус")
-@AllArgsConstructor
 public enum EmploymentStatus {
+    @Schema(description = "Безработный")
     UNEMPLOYED,
+    @Schema(description = "Самозанятый")
     SELF_EMPLOYED,
+    @Schema(description = "Трудоустроен")
     EMPLOYED,
+    @Schema(description = "ИП/ООО")
     BUSINESS_OWNER
 }

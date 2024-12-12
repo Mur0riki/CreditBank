@@ -1,15 +1,13 @@
 package neoflex.deal.model.json;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import neoflex.deal.model.enumFields.ChangeType;
 
 import java.time.LocalDate;
 
 
 @Getter
+@Setter
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor

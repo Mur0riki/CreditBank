@@ -51,7 +51,7 @@ public class DealServiceImpl implements DealService {
 
         List<LoanOfferDto> offers;
         try {
-            log.info("Запрос к микросервису Калькулятор для получения предложений.");
+            log.info("Запрос к микросервису Калькулятор для получения предложений по заявке" + statement.getStatementId());
             offers = calculatorClient.getLoanOffers(loanStatementRequestDto);
         } catch (FeignException e) {
             log.info("Ошибка возникла при запросе к мироксервису калькулятор.");
@@ -64,7 +64,7 @@ public class DealServiceImpl implements DealService {
         }
 
         offers.forEach(oldOffer -> oldOffer.setStatementId(statement.getStatementId()));
-        log.debug("Создан список предложений: {}", offers);
+        log.debug("Создан список предложений для заявки " + statement.getStatementId() + ": {}", offers);
         return ResponseEntity.ok(offers);
     }
 
@@ -87,20 +87,20 @@ public class DealServiceImpl implements DealService {
      */
     public void calculate(
             UUID statementId, FinishRegistrationRequestDto finishRegistrationRequestDto) {
-        log.info("Начат процесс завершения регистрации.");
+        log.info("Начат процесс завершения регистрации заявки " + statementId);
         Statement statement = statementService.findStatementById(statementId);
         ScoringDataDto scoringDataDto =
                 scoringDataMapper.toScoringDataDto(statement, finishRegistrationRequestDto);
 
         CreditDto creditDto;
         try {
-            log.info("Запрос к микросервису Калькулятор для выполнения расчёта.");
+            log.info("Запрос к микросервису Калькулятор для выполнения расчёта по заявке" + statementId);
 
             creditDto = calculatorClient.getCredit(scoringDataDto);
             statement.setStatus(Status.CC_APPROVED);
             statementService.saveStatement(statement);
         } catch (FeignException e) {
-            log.info("Ошибка при запросе к микросервису Калькулятор.");
+            log.info("Ошибка при запросе к микросервису Калькулятор по заявке " + statementId);
             if (e.status() == 500) {
                 statement.setStatus(Status.CC_DENIED);
                 statementService.saveStatement(statement);

@@ -6,9 +6,10 @@ import neoflex.deal.model.enumFields.Position;
 
 import java.math.BigDecimal;
 
-@Builder
+
 @Getter
 @Setter
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class Employment {
