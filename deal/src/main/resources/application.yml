@@ -13,6 +13,26 @@ spring:
     username: postgres
     password: postgres
     driverClassName: org.postgresql.Driver
+    kafka:
+      bootstrap-servers: localhost:29092
+      producer:
+        key-serializer: org.apache.kafka.common.serialization.StringSerializer
+        value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+        properties:
+          acks: 1
+          spring:
+            json:
+              add:
+                type:
+                  headers: false
+
+    topic:
+      finish-registration: finish-registration-event
+      create-documents: create-documents-event
+      send-documents: send-documents-event
+      send-ses: send-ses-event
+      credit-issued: credit-issued-event
+      statement-denied: statement-denied
 
 
 server:

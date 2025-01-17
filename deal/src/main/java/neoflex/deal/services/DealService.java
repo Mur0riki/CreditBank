@@ -14,4 +14,5 @@ public interface DealService {
     void selectOffer(LoanOfferDto loanOfferDto);
     void calculate(
             UUID statementId, FinishRegistrationRequestDto finishRegistrationRequestDto);
+
 }

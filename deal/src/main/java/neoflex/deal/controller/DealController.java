@@ -7,6 +7,7 @@ import neoflex.deal.dto.FinishRegistrationRequestDto;
 import neoflex.deal.dto.LoanOfferDto;
 import neoflex.deal.dto.LoanStatementRequestDto;
 import neoflex.deal.services.DealService;
+import neoflex.deal.services.MessageService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -22,6 +23,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class DealController {
     private final DealService dealService;
+    private final MessageService messageService;
 
     @PostMapping("/deal/statement")
     @Operation(summary = "Получение списка кредитных предложений", description = "Создаётся 4 кредитных предложения " +
@@ -37,6 +39,7 @@ public class DealController {
             "историю статусов и выбранное кредитное предложение.")
     public void selectOffer(@RequestBody LoanOfferDto loanOfferDto) {
         dealService.selectOffer(loanOfferDto);
+        messageService.finishRegistration(loanOfferDto.getStatementId());
     }
 
 
