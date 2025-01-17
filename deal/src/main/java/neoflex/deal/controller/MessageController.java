@@ -21,12 +21,12 @@ public class MessageController {
         messageService.send(statementId);
     }
     @PostMapping("/deal/document/{statementId}/sign")
-    @Operation(summary = "Запрос на отправку документов", description = "")
+    @Operation(summary = "Запрос на подписание документов документов", description = "")
     public void signDocuments(@PathVariable("statementId") UUID statementId) {
         messageService.sign(statementId);
     }
     @PostMapping("/deal/document/{statementId}/code")
-    @Operation(summary = "Запрос на отправку документов", description = "")
+    @Operation(summary = "Подписание документов", description = "")
     public void codeDocuments(@PathVariable("statementId") UUID statementId) {
         messageService.code(statementId);
     }

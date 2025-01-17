@@ -91,7 +91,7 @@ public class MessageServiceImpl implements MessageService {
 
     private void issueCredit(Statement statement) {
         if (statement.getCredit() == null) {
-            log.info("\"credit  is not exists\"");
+            log.info("\"credit " + statement.getStatementId() + " is not exists\"");
         }
         UUID creditId = statement.getCredit().getCreditId();
         Credit credit = creditRepositories.findById(creditId).get();
@@ -100,7 +100,7 @@ public class MessageServiceImpl implements MessageService {
         updateStatusHistory(statement, Status.CREDIT_ISSUED);
         credit.setCreditStatus(CreditStatus.ISSUED);
         creditRepositories.save(credit);
-        log.info("update credit {} in database");
+        log.info("update credit  in database");
     }
 
     private void updateStatusHistory(Statement statement, Status status) {
