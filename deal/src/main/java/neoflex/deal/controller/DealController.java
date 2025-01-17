@@ -6,7 +6,6 @@ import lombok.extern.slf4j.Slf4j;
 import neoflex.deal.dto.FinishRegistrationRequestDto;
 import neoflex.deal.dto.LoanOfferDto;
 import neoflex.deal.dto.LoanStatementRequestDto;
-import neoflex.deal.dto.StatementDto;
 import neoflex.deal.model.Statement;
 import neoflex.deal.services.DealService;
 import neoflex.deal.services.MessageService;
