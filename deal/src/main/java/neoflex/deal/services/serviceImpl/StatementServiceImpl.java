@@ -2,6 +2,7 @@ package neoflex.deal.services.serviceImpl;
 
 import jakarta.persistence.EntityNotFoundException;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -11,6 +12,8 @@ import neoflex.deal.model.enumFields.Status;
 import neoflex.deal.repositories.StatementRepositories;
 import neoflex.deal.services.StatementService;
 import org.springframework.stereotype.Service;
+
+import javax.swing.plaf.nimbus.State;
 
 @Slf4j
 @Service
@@ -52,5 +55,13 @@ public class StatementServiceImpl implements StatementService {
         return statementRepositories
                 .findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Заявка с ID " + id +" не найдена"));
+    }
+
+    /**
+     * Ищет все заявки
+     * @return Список заявок {@link List<Statement>}
+     */
+    public List<Statement> findAllStatement() {
+        return  statementRepositories.findAll();
     }
 }

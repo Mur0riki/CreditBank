@@ -6,13 +6,13 @@ import lombok.extern.slf4j.Slf4j;
 import neoflex.deal.dto.FinishRegistrationRequestDto;
 import neoflex.deal.dto.LoanOfferDto;
 import neoflex.deal.dto.LoanStatementRequestDto;
+import neoflex.deal.dto.StatementDto;
+import neoflex.deal.model.Statement;
 import neoflex.deal.services.DealService;
 import neoflex.deal.services.MessageService;
+import neoflex.deal.services.StatementService;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.UUID;
@@ -24,6 +24,7 @@ import java.util.UUID;
 public class DealController {
     private final DealService dealService;
     private final MessageService messageService;
+    private final StatementService statementService;
 
     @PostMapping("/deal/statement")
     @Operation(summary = "Получение списка кредитных предложений", description = "Создаётся 4 кредитных предложения " +
@@ -50,5 +51,25 @@ public class DealController {
     public void calculate(
             @PathVariable("statementId")UUID statementId, @RequestBody FinishRegistrationRequestDto finishRegistrationRequestDto) {
         dealService.calculate(statementId, finishRegistrationRequestDto);
+    }
+    @GetMapping("/admin/statement/{statementId}")
+    @Operation(summary = "получение заявки",
+            description = """
+                    Приходит statementId. Ответ - statement.""")
+    public ResponseEntity<Statement> getStatementDto(@PathVariable("statementId") UUID statementId) {
+        log.info("statementId - {}", statementId);
+        Statement statementDto = statementService.findStatementById(statementId);
+        log.info("statementDto - {}", statementDto);
+        return ResponseEntity.ok(statementDto);
+    }
+
+    @GetMapping("/admin/statement")
+    @Operation(summary = "получение всех заявок",
+            description = """
+                   Ответ - List<Statement>.""")
+    public ResponseEntity<List<Statement>> getAllStatements() {
+        List<Statement> statementList = statementService.findAllStatement();
+        log.info("statementDtoList - {}", statementList);
+        return ResponseEntity.ok(statementList);
     }
 }
