@@ -23,11 +23,13 @@ public class MessageController {
     @PostMapping("/deal/document/{statementId}/sign")
     @Operation(summary = "Запрос на подписание документов документов", description = "")
     public void signDocuments(@PathVariable("statementId") UUID statementId) {
+
         messageService.sign(statementId);
     }
     @PostMapping("/deal/document/{statementId}/code")
     @Operation(summary = "Подписание документов", description = "")
-    public void codeDocuments(@PathVariable("statementId") UUID statementId) {
-        messageService.code(statementId);
+    public void codeDocuments(@PathVariable("statementId") UUID statementId,String sesCode) {
+
+        messageService.code(statementId,sesCode);
     }
 }

@@ -75,5 +75,9 @@ public class GatewayController {
     CreditDto getCredit(ScoringDataDto scoringDataDto){
         return calculatorClient.getCredit(scoringDataDto);
     }
+    @PostMapping("/document/{statementId}/sign/code")
+    void verifySesCode(@PathVariable("statementId") UUID statementId, String sesCode){
+        dealClient.verifySesCode(statementId,sesCode);
+    }
 
 }

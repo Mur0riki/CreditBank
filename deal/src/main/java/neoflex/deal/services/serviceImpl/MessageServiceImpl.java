@@ -48,6 +48,9 @@ public class MessageServiceImpl implements MessageService {
                 .statementId(statementId)
                 .theme(Theme.CREATE_DOCUMENTS).build()
         );
+        statement.setStatus(Status.DOCUMENT_CREATED);
+        updateStatusHistory(statement,Status.DOCUMENT_CREATED);
+        statementRepositories.save(statement);
     }
 
     @Override
@@ -70,23 +73,28 @@ public class MessageServiceImpl implements MessageService {
     }
 
     @Override
-    public void code(UUID statementId) {
+    public void code(UUID statementId,String sesCode) {
         log.debug("try get statement by id {} ", statementId);
         Statement statement = getStatement(statementId);
-        statement.setStatus(Status.DOCUMENT_SIGNED);
-        statement.setSignDate(LocalDateTime.now());
-        updateStatusHistory(statement, Status.DOCUMENT_SIGNED);
-        log.debug("update statement in database");
-        statementRepositories.save(statement);
+        if(statement.getSesCode().equals(sesCode)){
+            statement.setStatus(Status.DOCUMENT_SIGNED);
+            statement.setSignDate(LocalDateTime.now());
+            updateStatusHistory(statement, Status.DOCUMENT_SIGNED);
+            log.debug("update statement in database");
+            statementRepositories.save(statement);
 
-        issueCredit(statement);
+            issueCredit(statement);
 
-        sendMessageForConsumer(EmailMessageDTO.builder()
-                .address(statement.getClient().getEmail())
-                .statementId(statementId)
-                .theme(Theme.CREDIT_ISSUED)
-                .build()
-        );
+            sendMessageForConsumer(EmailMessageDTO.builder()
+                    .address(statement.getClient().getEmail())
+                    .statementId(statementId)
+                    .theme(Theme.CREDIT_ISSUED)
+                    .build()
+            );
+        } else {
+            log.debug("false sesCode");
+        }
+
     }
 
     private void issueCredit(Statement statement) {

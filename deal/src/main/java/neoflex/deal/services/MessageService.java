@@ -6,5 +6,5 @@ public interface MessageService {
     void finishRegistration(UUID statementId);
     void send(UUID statementId);
     void sign(UUID statementId);
-    void code(UUID statementid);
+    void code(UUID statementid, String sesCode);
 }

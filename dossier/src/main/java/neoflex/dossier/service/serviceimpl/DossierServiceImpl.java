@@ -11,7 +11,9 @@ import jakarta.mail.internet.MimeMultipart;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import neoflex.dossier.service.DossierService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -24,17 +26,22 @@ import java.util.List;
 @Service
 @Slf4j
 @RequiredArgsConstructor
+@EnableAutoConfiguration
 public class DossierServiceImpl implements DossierService {
 
-
-    private final JavaMailSender javaMailSender;
+    private JavaMailSender javaMailSender;
     private List<String> list = new ArrayList<>();
     private int docCount;
     private int sesCodeCount;
     private List<String> sesCodeList = new ArrayList<>();
 
 
+    @Value("{$sender.email}")
     private String senderEmail;
+
+    public void setMailSender(JavaMailSender mailSender) {
+        this.javaMailSender = mailSender;
+    }
 
     @Override
     public void sendSes(String receiver) {

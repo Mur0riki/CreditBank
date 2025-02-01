@@ -36,4 +36,6 @@ public interface DealClient {
     void signDocuments(@PathVariable("statementId") UUID statementId);
     @PostMapping("/deal/document/{statementId}/code")
     void codeDocuments(@PathVariable("statementId") UUID statementId);
+    @PostMapping("/document/{statementId}/sign/code")
+    void verifySesCode(@PathVariable("statementId") UUID statementId, String sesCode);
 }

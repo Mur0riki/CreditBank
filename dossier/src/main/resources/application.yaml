@@ -1,2 +1,17 @@
 server:
   port: 8083
+  spring:
+    mail:
+      host: smtp.yandex.com
+      port: 587
+      username: Mur0rikil9@yandex.ru
+      password: 181198Clf228f
+      smtp:
+        auth: true
+        starttls:
+          enable: true
+          required: true
+      test-connection: true
+  sender:
+    email: Mur0rikil9@yandex.ru
+    text: no-reply

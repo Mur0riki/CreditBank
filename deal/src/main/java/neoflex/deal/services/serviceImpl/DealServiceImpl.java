@@ -17,6 +17,7 @@ import neoflex.deal.model.enumFields.Status;
 import neoflex.deal.services.ClientService;
 import neoflex.deal.services.CreditService;
 import neoflex.deal.services.DealService;
+import neoflex.deal.services.MessageService;
 import neoflex.deal.services.client.CalculatorClient;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -35,6 +36,7 @@ public class DealServiceImpl implements DealService {
     private final CalculatorClient calculatorClient;
     private final ScoringDataMapper scoringDataMapper;
     private final CreditMapper creditMapper;
+    private final MessageService messageService;
 
     /**
      Создаёт заявку на основе предоставленных данных, взаимодействует с микросервисом Калькулятор
@@ -48,6 +50,7 @@ public class DealServiceImpl implements DealService {
         Client client = clientService.createClient(loanStatementRequestDto);
 
         Statement statement = statementService.createStatement(client);
+
 
         List<LoanOfferDto> offers;
         try {
@@ -77,6 +80,7 @@ public class DealServiceImpl implements DealService {
         statement.setStatus(Status.APPROVED);
         statement.setAppliedOffer(loanOfferDto);
         statementService.saveStatement(statement);
+        messageService.finishRegistration(loanOfferDto.getStatementId());
     }
 
     /**
@@ -112,5 +116,6 @@ public class DealServiceImpl implements DealService {
         Credit credit = creditMapper.toCredit(creditDto);
         credit.setCreditStatus(CreditStatus.CALCULATED);
         creditService.saveCredit(credit);
+        messageService.send(statementId);
     }
 }
