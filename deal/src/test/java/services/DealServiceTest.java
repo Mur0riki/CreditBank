@@ -11,6 +11,7 @@ import neoflex.deal.model.Statement;
 import neoflex.deal.model.enumFields.CreditStatus;
 import neoflex.deal.model.enumFields.Status;
 import neoflex.deal.services.DealService;
+import neoflex.deal.services.MessageService;
 import neoflex.deal.services.client.CalculatorClient;
 import neoflex.deal.services.serviceImpl.ClientServiceImpl;
 import neoflex.deal.services.serviceImpl.CreditServiceImpl;
@@ -50,8 +51,11 @@ class DealServiceTest {
 
     @Mock
     private CreditMapper creditMapper;
+    @Mock
+    private MessageService messageService;
 
     private DealService dealService;
+
 
     LoanStatementRequestDto requestDto;
     Client mockClient;
@@ -63,7 +67,7 @@ class DealServiceTest {
         mockClient = new Client();
         mockStatement = new Statement();
         mockStatement.setStatementId(UUID.randomUUID());
-        dealService = new DealServiceImpl(clientService, statementService, creditService, calculatorClient, scoringDataMapper, creditMapper);
+        dealService = new DealServiceImpl(clientService, statementService, creditService, calculatorClient, scoringDataMapper, creditMapper, messageService);
     }
 
     @Test

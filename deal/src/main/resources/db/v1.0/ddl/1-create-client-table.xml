@@ -7,6 +7,11 @@
 
     <!--    Client-->
     <changeSet id="1" author="Mur0riki">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="client"/>
+            </not>
+        </preConditions>
         <createTable tableName="client">
             <column name="client_id" type="UUID">
                 <constraints primaryKey="true" nullable="false" primaryKeyName="pk_client_client_id"/>

@@ -3,28 +3,29 @@ app:
     default-url: http://localhost:8080
 
 spring:
-  jpa:
-    database: POSTGRESQL
-    show-sql: true
-    hibernate:
-      ddl-auto: validate
+  liquibase:
+    enabled: true
+    change-log: classpath:/db/changelog-master.xml
   datasource:
-    url: jdbc:postgresql://localhost:5432/CreditBank
+    jpa:
+      hibernate:
+        ddl-auto: validate
+    url: jdbc:postgresql://localhost:5432/postgres
     username: postgres
     password: postgres
     driverClassName: org.postgresql.Driver
-    kafka:
-      bootstrap-servers: localhost:29092
-      producer:
-        key-serializer: org.apache.kafka.common.serialization.StringSerializer
-        value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
-        properties:
-          acks: 1
-          spring:
-            json:
-              add:
-                type:
-                  headers: false
+  kafka:
+    bootstrap-servers: localhost:29092
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      properties:
+        acks: 1
+        spring:
+          json:
+            add:
+              type:
+                headers: false
 
     topic:
       finish-registration: finish-registration-event
@@ -34,6 +35,7 @@ spring:
       credit-issued: credit-issued-event
       statement-denied: statement-denied
 
+changeLogFile: src/main/resources/db/changelog/db.changelog-master.yaml
 
 server:
   port: 8081

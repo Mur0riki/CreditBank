@@ -26,7 +26,6 @@ import java.util.List;
 @Service
 @Slf4j
 @RequiredArgsConstructor
-@EnableAutoConfiguration
 public class DossierServiceImpl implements DossierService {
 
     private JavaMailSender javaMailSender;

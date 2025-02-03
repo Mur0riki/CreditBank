@@ -7,6 +7,11 @@
 
     <!--    Credit-->
     <changeSet id="2" author="Mur0riki">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="credit"/>
+            </not>
+        </preConditions>
         <createTable tableName="credit">
             <column name="credit_id" type="UUID">
                 <constraints primaryKey="true" nullable="false" primaryKeyName="pk_credit_credit_id"/>

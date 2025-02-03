@@ -1,26 +1,147 @@
-version: '3.8'
+version: "3.8"
 services:
-
   zookeeper:
     image: confluentinc/cp-zookeeper:latest
+    container_name: zookeeper
     ports:
-      - "2181:2181"
+      - "22181:2181"
     environment:
+      ZOOKEEPER_SERVER_ID: 1
       ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
     volumes:
       - ./data/zookeeper/data:/data
       - ./data/zookeeper/datalog:/datalog
+    networks:
+      - CreditBank-network
   kafka:
     image: bitnami/kafka:latest
+    container_name: broker
     ports:
-      - "9092:9092"  # Внешний порт для INSIDE
-    #      - "9093:9093"  # Внешний порт для OUTSIDE
+      - "9092:9092"
     environment:
-      KAFKA_ADVERTISED_LISTENERS: INSIDE://localhost:9092
-      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INSIDE:PLAINTEXT
-      KAFKA_LISTENERS: INSIDE://0.0.0.0:9092
-      KAFKA_INTER_BROKER_LISTENER_NAME: INSIDE  # Установка inter.broker.listener.name
-      KAFKA_ZOOKEEPER_CONNECT: 'zookeeper:2181'
-
+      KAFKA_BROKER_ID: 1
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT
+      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://broker:9092
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
     depends_on:
       - zookeeper
+    networks:
+      - CreditBank-network
+
+  postgres:
+    image: postgres:16
+    container_name: postgres
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_DB: postgres
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    networks:
+      - CreditBank-network
+
+  calculator-service:
+    build:
+      context: .
+      dockerfile: calculator.Dockerfile
+      args:
+        REBUILD: always
+    image: calculator-service
+    container_name: calculator-service
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/postgres
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: postgres
+    depends_on:
+      - postgres
+    networks:
+      - CreditBank-network
+  deal-service:
+    build:
+      context: .
+      dockerfile: deal.Dockerfile
+      args:
+        REBUILD: always
+    image: deal-service
+    container_name: deal-service
+    ports:
+      - "8081:8081"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/postgres
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: postgres
+    depends_on:
+      - postgres
+      - kafka
+    networks:
+      - CreditBank-network
+  dossier-service:
+    build:
+      context: .
+      dockerfile: /dossier.Dockerfile
+    image: dossier-service
+    container_name: dossier-service
+    ports:
+      - "8083:8083"
+    environment:
+      BROKER_HOST: broker:9092
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/postgres
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: postgres
+    depends_on:
+      - postgres
+      - kafka
+    networks:
+      - CreditBank-network
+  gateway-service:
+    build:
+      context: .
+      dockerfile: apigateway.Dockerfile
+    image: apigateway-service
+    container_name: apigateway-service
+    ports:
+      - "8086:8086"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/postgres
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: postgres
+    depends_on:
+      - postgres
+    networks:
+      - CreditBank-network
+  statement-service:
+    build:
+      context: ./
+      dockerfile: ./statement.Dockerfile
+      args:
+        REBUILD: always
+    image: statement-service
+    container_name: statement-service
+    ports:
+      - "8082:8082"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/postgres
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: postgres
+    depends_on:
+      - postgres
+    networks:
+      - CreditBank-network
+volumes:
+  postgres-data: { }
+networks:
+  CreditBank-network: { }
+
+
+
+
