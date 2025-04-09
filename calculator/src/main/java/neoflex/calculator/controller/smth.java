@@ -7,5 +7,4 @@ public class smth {
         this.xd = xd;
     }
     private int zv;
-    private int zx;
 }
