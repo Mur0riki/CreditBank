@@ -8,5 +8,4 @@ public class smth {
     }
     private int zv;
     private int zx;
-    private int z;
 }
