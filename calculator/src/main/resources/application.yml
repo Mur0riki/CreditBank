@@ -1,0 +1,5 @@
+calculator:
+  baseRate: 10
+server:
+  port: 8080
+

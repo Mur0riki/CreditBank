@@ -1,0 +1,19 @@
+server:
+  port: 8083
+spring:
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: trokhinandrey384@gmail.com
+    password: przj myur biel ypoh
+    smtp:
+      auth: true
+      starttls:
+        enable: true
+        required: true
+    test-connection: true
+  kafka:
+    bootstrap-servers: broker:9092
+sender:
+  email: trokhinandrey384@gmail.com
+  text: no-reply
